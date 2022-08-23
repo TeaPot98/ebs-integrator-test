@@ -16,6 +16,7 @@ export interface CartItem {
 
 export interface ProductContextType {
   products: Product[];
+  categories: Category[];
   cart: Cart;
   addToCart: (p: Product) => void;
   removeFromCart: (p: Product) => void;
@@ -25,3 +26,5 @@ export interface ProductContextType {
 export interface Cart {
   [key: string]: CartItem;
 }
+
+export type Order = 'asc' | 'desc';

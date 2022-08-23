@@ -1,15 +1,42 @@
-import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-import { Product } from 'types'
-import AppContext from 'state/context'
+import AppContext from 'state/ProductContext';
+import { Order } from 'types';
+
+import CategorySelect from './CategorySelect';
 
 const ProductsTable = () => {
-  const { products, addToCart, removeFromCart } = useContext(AppContext)
-  
+  const { products, addToCart, removeFromCart } = useContext(AppContext);
+  const [productsToShow, setProductsToShow] = useState(products);
+  const [orderByPrice, setOrderByPrice] = useState<Order>('asc');
+
+  useEffect(() => {
+    filterByCategory('');
+  }, [products]);
+
+  useEffect(() => {
+    sortByPrice(orderByPrice);
+  }, [orderByPrice]);
+
+  const filterByCategory = (categoryId: string) => {
+    setProductsToShow(categoryId !== '' ? products.filter((p) => p.category.id === categoryId) : products);
+    sortByPrice(orderByPrice);
+  };
+
+  const sortByPrice = (order: Order) => {
+    setProductsToShow((prevState) =>
+      prevState.sort((a, b) => (order === 'asc' ? a.price - b.price : b.price - a.price)),
+    );
+  };
+
   return (
     <>
-      <Link to="/cart">Shopping Cart</Link> 
+      <Link to="/cart">Shopping Cart</Link>
+      <CategorySelect onSelect={filterByCategory} />
+      <button onClick={() => setOrderByPrice((prevState) => (prevState === 'asc' ? 'desc' : 'asc'))}>
+        {orderByPrice === 'desc' ? 'price ascending' : 'price descending'}
+      </button>
       <table>
         <thead>
           <tr>
@@ -20,21 +47,21 @@ const ProductsTable = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map(p =>
+          {productsToShow.map((p) => (
             <tr key={p.name}>
               <td>{p.category.name}</td>
               <td>{p.name}</td>
               <td>${p.price}</td>
-              <td align='center'>
+              <td align="center">
                 <button onClick={() => addToCart(p)}>Add to cart</button>
                 <button onClick={() => removeFromCart(p)}>Remove</button>
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </>
-  )
-}
+  );
+};
 
-export default ProductsTable
+export default ProductsTable;

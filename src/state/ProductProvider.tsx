@@ -1,63 +1,74 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 
-import { Product, Cart } from 'types'
-import ProductContext from './context'
+import { Product, Cart, Category } from 'types';
+import ProductContext from './ProductContext';
 
 const ProductProvider = ({ children }: { children: React.ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>([])
-  const [cart, setCart] = useState<Cart>({} as Cart)
-  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [cart, setCart] = useState<Cart>({} as Cart);
+
   useEffect(() => {
     fetch('http://localhost:3001/api/products/')
-    .then(response => response.json())
-    .then(data => setProducts(data))
-    .catch(error => console.error(error.message))
-  }, [])
+      .then((response) => response.json())
+      .then((data) => setProducts(data))
+      .catch((error) => console.error(error.message));
+  }, []);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/product/categories/')
+      .then((response) => response.json())
+      .then((data) => setCategories(data))
+      .catch((error) => console.error(error.message));
+  }, []);
 
   const addToCart = (product: Product) => {
-    setCart(prevState => ({
+    setCart((prevState) => ({
       ...prevState,
       [product.name]: {
         product: product,
-        quantity: prevState.hasOwnProperty(product.name) ? prevState[product.name].quantity + 1 : 1
-      }
-    }))
-  }
+        quantity: prevState.hasOwnProperty(product.name) ? prevState[product.name].quantity + 1 : 1,
+      },
+    }));
+  };
 
   const removeFromCart = (product: Product) => {
     if (cart.hasOwnProperty(product.name)) {
-      setCart(prevState => {
-        const {[product.name]: remove, ...rest} = prevState
-        return rest
-      })
+      setCart((prevState) => {
+        const { [product.name]: remove, ...rest } = prevState;
+        return rest;
+      });
     }
-  }
+  };
 
   const decreaseQuantity = (product: Product) => {
     if (cart[product.name].quantity === 1) {
-      removeFromCart(product)
-      return
+      removeFromCart(product);
+      return;
     }
-    setCart(prevState => ({
+    setCart((prevState) => ({
       ...prevState,
       [product.name]: {
         product: prevState[product.name].product,
-        quantity: prevState[product.name].quantity - 1
-      }
-    }))
-  }
+        quantity: prevState[product.name].quantity - 1,
+      },
+    }));
+  };
 
   return (
-    <ProductContext.Provider value={{
-      products: products,
-      cart: cart,
-      addToCart: addToCart,
-      removeFromCart: removeFromCart,
-      decreaseQuantity: decreaseQuantity,
-    }}>
+    <ProductContext.Provider
+      value={{
+        products: products,
+        categories: categories,
+        cart: cart,
+        addToCart: addToCart,
+        removeFromCart: removeFromCart,
+        decreaseQuantity: decreaseQuantity,
+      }}
+    >
       {children}
     </ProductContext.Provider>
-  )
-}
+  );
+};
 
-export default ProductProvider
+export default ProductProvider;
