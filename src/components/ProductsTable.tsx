@@ -15,9 +15,9 @@ const ProductsTable = () => {
     filterByCategory('');
   }, [products]);
 
-  useEffect(() => {
-    sortByPrice(orderByPrice);
-  }, [orderByPrice]);
+  // useEffect(() => {
+  //   sortByPrice(orderByPrice);
+  // }, [orderByPrice]);
 
   const filterByCategory = (categoryId: string) => {
     setProductsToShow(categoryId !== '' ? products.filter((p) => p.category.id === categoryId) : products);
@@ -28,14 +28,15 @@ const ProductsTable = () => {
     setProductsToShow((prevState) =>
       prevState.sort((a, b) => (order === 'asc' ? a.price - b.price : b.price - a.price)),
     );
+    setOrderByPrice(prevState => prevState === 'asc' ? 'desc' : 'asc')
   };
 
   return (
     <>
       <Link to="/cart">Shopping Cart</Link>
       <CategorySelect onSelect={filterByCategory} />
-      <button onClick={() => setOrderByPrice((prevState) => (prevState === 'asc' ? 'desc' : 'asc'))}>
-        {orderByPrice === 'desc' ? 'price ascending' : 'price descending'}
+      <button onClick={() => sortByPrice(orderByPrice)}>
+        {orderByPrice === 'asc' ? 'price ascending' : 'price descending'}
       </button>
       <table>
         <thead>
